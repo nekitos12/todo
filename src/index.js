@@ -8,7 +8,7 @@ import TaskList from './components/task-list'
 import Footer from './components/footer'
 
 export default class TodoApp extends Component {
-  maxId = 103
+  maxId = 100
 
   state = {
     todoData: [
@@ -19,25 +19,13 @@ export default class TodoApp extends Component {
     filter: 'All',
   }
 
-  filters = {
-    All: () => {
-      return this.state.todoData
-    },
-    Active: () => {
-      return this.state.todoData.filter((todo) => !todo.done)
-    },
-    Completed: () => {
-      return this.state.todoData.filter((todo) => todo.done)
-    },
-  }
-
   upDate = () => {
     this.setState(({ todoData }) => {
       const newTodos = JSON.parse(JSON.stringify(todoData))
       return {
         todoData: newTodos.map((todo) => ({
           ...todo,
-          currentBornTime: formatDistanceToNow(todo.realBornTime, { includeSeconds: true }),
+          currentBornTime: formatDistanceToNow(todo.createdAt, { includeSeconds: true }),
         })),
       }
     })
@@ -61,25 +49,25 @@ export default class TodoApp extends Component {
     })
   }
 
-  toggleProperty = (arr, id, propName) => {
+  toggleProperty = (id, propName, arr = this.state.todoData) => {
     const newArray = JSON.parse(JSON.stringify(arr))
     return newArray.map((todo) => {
-      return todo.id === id || todo.editing ? { ...todo, [propName]: !todo[propName] } : { ...todo }
+      return todo.id === id || todo.isEditing ? { ...todo, [propName]: !todo[propName] } : { ...todo }
     })
   }
 
   onToggleDone = (id) => {
-    this.setState(({ todoData }) => {
+    this.setState(() => {
       return {
-        todoData: this.toggleProperty(todoData, id, 'done'),
+        todoData: this.toggleProperty(id, 'isDone'),
       }
     })
   }
 
   onToggleEdit = (id) => {
-    this.setState(({ todoData }) => {
+    this.setState(() => {
       return {
-        todoData: this.toggleProperty(todoData, id, 'editing'),
+        todoData: this.toggleProperty(id, 'isEditing'),
       }
     })
   }
@@ -105,25 +93,39 @@ export default class TodoApp extends Component {
     this.setState(({ todoData }) => {
       const newTodos = JSON.parse(JSON.stringify(todoData))
       return {
-        todoData: newTodos.filter((todo) => !todo.done),
+        todoData: newTodos.filter((todo) => !todo.isDone),
       }
     })
+  }
+
+  filteredTodo = () => {
+    const { filter, todoData } = this.state
+    switch (filter) {
+      case 'All':
+        return todoData
+      case 'Active':
+        return todoData.filter((todo) => !todo.isDone)
+      case 'Completed':
+        return todoData.filter((todo) => todo.isDone)
+      default:
+        return todoData
+    }
   }
 
   createTodoItem(label) {
     return {
       label,
-      done: false,
-      editing: false,
+      isDone: false,
+      isEditing: false,
       id: this.maxId++,
-      realBornTime: Date.now(),
+      createdAt: Date.now(),
     }
   }
 
   render() {
-    const todoCount = this.state.todoData.filter((todo) => !todo.done).length
+    const todoCount = this.state.todoData.filter((todo) => !todo.isDone).length
     setTimeout(() => this.upDate(), 2000)
-    const filterData = this.filters[this.state.filter]()
+    const filterData = this.filteredTodo()
     return (
       <section className="todoapp">
         <header className="header">

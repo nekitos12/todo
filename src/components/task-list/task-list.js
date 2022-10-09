@@ -22,38 +22,39 @@ export default class TaskList extends Component {
     e.preventDefault()
     this.setState(() => {
       return {
-        currentTask: todo.label,
+        currentTask: '',
       }
     })
+    this.props.onToggleEdit(todo.id)
   }
 
   render() {
     const { todos, onDeleted, onToggleDone, onToggleEdit } = this.props
 
     const elements = todos.map((todo) => {
-      const { done, editing } = todo
+      const { isDone, isEditing } = todo
       let classNames = ''
-      if (done) classNames += ' completed'
-      if (editing) classNames += ' editing'
+      if (isDone) classNames += ' completed'
+      if (isEditing) classNames += ' editing'
       return (
         <li key={todo.id} className={classNames}>
-          <form action="" onSubmit={this.onSubmitChange(todo)}>
-            <Task
-              {...todo}
-              onDeleted={() => onDeleted(todo.id)}
-              onToggleDone={() => onToggleDone(todo.id)}
-              onToggleEdit={() => onToggleEdit(todo.id)}
-              taskDone={todo.done}
-            />
-            {editing ? (
+          <Task
+            {...todo}
+            onDeleted={() => onDeleted(todo.id)}
+            onToggleDone={() => onToggleDone(todo.id)}
+            onToggleEdit={() => onToggleEdit(todo.id)}
+            taskDone={todo.isDone}
+          />
+          {isEditing ? (
+            <form action="" onSubmit={this.onSubmitChange(todo)}>
               <input
                 type="text"
                 className="edit"
                 value={this.state.currentTask || todo.label}
                 onChange={this.onTaskEdit(todo)}
               />
-            ) : null}
-          </form>
+            </form>
+          ) : null}
         </li>
       )
     })
@@ -69,11 +70,11 @@ TaskList.propTypes = {
   todos: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string,
-      done: PropTypes.bool,
-      editing: PropTypes.bool,
+      isDone: PropTypes.bool,
+      isEditing: PropTypes.bool,
       id: PropTypes.number,
       currentBornTime: PropTypes.string,
-      realBornTime: PropTypes.number,
+      createdAt: PropTypes.number,
     })
   ).isRequired,
 }

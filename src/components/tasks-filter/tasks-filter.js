@@ -20,9 +20,10 @@ function TasksFilter({ currentFilter, onFilterClick }) {
   const arr = filterData.map(({ filter, id }) => {
     return (
       <li key={id}>
-        <button className={currentFilter === filter ? 'selected' : null} onClick={() => onFilterClick(filter)}>
-          {filter}{' '}
-        </button>
+        <label className={currentFilter === filter ? 'selected' : null}>
+          <input type="radio" name="filter" value={filter} onClick={() => onFilterClick(filter)} />
+          {filter}
+        </label>
       </li>
     )
   })

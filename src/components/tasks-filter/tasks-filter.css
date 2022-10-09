@@ -12,7 +12,7 @@
   cursor: default;
 }
 
-.filters li button {
+.filters li label {
   display: inline-block;
   color: inherit;
   margin: 3px;
@@ -21,15 +21,20 @@
   border: 1px solid transparent;
   border-radius: 3px;
 }
+.filters li input {
+  position: absolute;
+  -webkit-appearance: none;
+  appearance: none;
+}
 
-.filters li button:not(.selected) {
+.filters li label:not(.selected) {
   cursor: pointer;
 }
 
-.filters li:hover button {
+.filters li:hover label {
   border-color: rgba(175, 47, 47, 0.1);
 }
 
-.filters li button.selected {
+.filters li label.selected {
   border-color: rgba(175, 47, 47, 0.2);
 }

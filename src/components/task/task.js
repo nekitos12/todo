@@ -6,10 +6,10 @@ function Task({ label, currentBornTime, taskDone, onToggleDone, onDeleted, onTog
   return (
     <div className="view">
       <input className="toggle" onClick={onToggleDone} type="checkbox" defaultChecked={taskDone} />
-      <label>
+      <div className="create">
         <span className="description">{label}</span>
         <span className="created"> created {currentBornTime}</span>
-      </label>
+      </div>
       <button aria-label="Edit task" className="icon icon-edit" onClick={onToggleEdit} />
       <button aria-label="Delete task" className="icon icon-destroy" onClick={onDeleted} />
     </div>

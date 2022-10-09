@@ -34,6 +34,7 @@
         "linebreak-style": [0, "unix"],
         "quotes": ["error", "single"],
         "semi": 0,
+        "indent": "off",
         "react/react-in-jsx-scope": "off",
         "react/prop-types": 0,
         "react/destructuring-assignment": [0, "always"],
