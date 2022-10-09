@@ -8,7 +8,7 @@ import TaskList from './components/task-list'
 import Footer from './components/footer'
 
 export default class TodoApp extends Component {
-  maxId = 100
+  maxId = 103
 
   state = {
     todoData: [
