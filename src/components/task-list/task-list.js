@@ -4,6 +4,8 @@ import PropTypes from 'prop-types'
 import './task-list.css'
 import Task from '../task'
 
+const classNames = require('classnames')
+
 export default class TaskList extends Component {
   state = {
     currentTask: '',
@@ -29,31 +31,33 @@ export default class TaskList extends Component {
   }
 
   render() {
-    const { todos, onDeleted, onToggleDone, onToggleEdit } = this.props
+    const { todos, onDeleted, onToggleDone, onToggleEdit, onPlayClick, onPauseClick } = this.props
 
     const elements = todos.map((todo) => {
       const { isDone, isEditing } = todo
-      let classNames = ''
-      if (isDone) classNames += ' completed'
-      if (isEditing) classNames += ' editing'
+
+      const className = classNames({
+        completed: isDone,
+        editing: isEditing,
+      })
       return (
-        <li key={todo.id} className={classNames}>
+        <li key={todo.id} className={className}>
           <Task
             {...todo}
             onDeleted={() => onDeleted(todo.id)}
             onToggleDone={() => onToggleDone(todo.id)}
             onToggleEdit={() => onToggleEdit(todo.id)}
-            taskDone={todo.isDone}
+            onPlayClick={onPlayClick}
+            onPauseClick={onPauseClick}
           />
           {isEditing ? (
-            <form action="" onSubmit={this.onSubmitChange(todo)}>
-              <input
-                type="text"
-                className="edit"
-                value={this.state.currentTask || todo.label}
-                onChange={this.onTaskEdit(todo)}
-              />
-            </form>
+            <input
+              type="text"
+              className="edit"
+              value={this.state.currentTask || todo.label}
+              onChange={this.onTaskEdit(todo)}
+              onBlur={this.onSubmitChange(todo)}
+            />
           ) : null}
         </li>
       )
@@ -61,7 +65,9 @@ export default class TaskList extends Component {
     return <ul className="todo-list">{elements}</ul>
   }
 }
-
+TaskList.defaultProps = {
+  todos: [],
+}
 TaskList.propTypes = {
   changeTaskDescr: PropTypes.func.isRequired,
   onDeleted: PropTypes.func.isRequired,
@@ -75,6 +81,10 @@ TaskList.propTypes = {
       id: PropTypes.number,
       currentBornTime: PropTypes.string,
       createdAt: PropTypes.number,
+      timetoComplete: PropTypes.number,
+      isPause: PropTypes.bool,
     })
-  ).isRequired,
+  ),
+  onPlayClick: PropTypes.func.isRequired,
+  onPauseClick: PropTypes.func.isRequired,
 }
