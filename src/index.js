@@ -11,12 +11,24 @@ export default class TodoApp extends Component {
   maxId = 100
 
   state = {
-    todoData: [
-      this.createTodoItem('Drink Coffee'),
-      this.createTodoItem('Learn React'),
-      this.createTodoItem('Have a dinner'),
-    ],
-    filter: 'All',
+    filter: '',
+    todoData: [],
+  }
+
+  componentDidMount() {
+    this.setState({
+      todoData: [
+        this.createTodoItem('Drink Coffee', 20),
+        this.createTodoItem('Learn React', 25),
+        this.createTodoItem('Have a dinner', 30),
+      ],
+      filter: 'All',
+    })
+    this.interval = setInterval(() => this.upDate(), 2000)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval)
   }
 
   upDate = () => {
@@ -31,9 +43,8 @@ export default class TodoApp extends Component {
     })
   }
 
-  addItem = (label) => {
-    const newItem = this.createTodoItem(label)
-
+  addItem = (label, time) => {
+    const newItem = this.createTodoItem(label, time)
     this.setState(({ todoData }) => {
       return {
         todoData: [newItem, ...todoData],
@@ -112,19 +123,39 @@ export default class TodoApp extends Component {
     }
   }
 
-  createTodoItem(label) {
+  onPlayClick = (id) => {
+    this.setState(({ todoData }) => {
+      const newTodos = JSON.parse(JSON.stringify(todoData))
+      return {
+        todoData: newTodos.map((todo) => (todo.id === id ? { ...todo, isPause: false } : { ...todo })),
+      }
+    })
+  }
+
+  onPauseClick = (id) => {
+    this.setState(({ todoData }) => {
+      const newTodos = JSON.parse(JSON.stringify(todoData))
+      return {
+        todoData: newTodos.map((todo) => (todo.id === id ? { ...todo, isPause: true } : { ...todo })),
+      }
+    })
+  }
+
+  createTodoItem(label, time) {
     return {
       label,
       isDone: false,
       isEditing: false,
       id: this.maxId++,
+      timetoComplete: time,
       createdAt: Date.now(),
+      isPause: false,
     }
   }
 
   render() {
     const todoCount = this.state.todoData.filter((todo) => !todo.isDone).length
-    setTimeout(() => this.upDate(), 2000)
+    // setTimeout(() => this.upDate(), 2000)
     const filterData = this.filteredTodo()
     return (
       <section className="todoapp">
@@ -139,6 +170,8 @@ export default class TodoApp extends Component {
             onToggleEdit={this.onToggleEdit}
             onToggleDone={this.onToggleDone}
             changeTaskDescr={this.changeTaskDescr}
+            onPlayClick={this.onPlayClick}
+            onPauseClick={this.onPauseClick}
           />
           <Footer
             onFilterClick={this.onFilterClick}

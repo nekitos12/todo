@@ -3,23 +3,10 @@ import PropTypes from 'prop-types'
 import './tasks-filter.css'
 
 function TasksFilter({ currentFilter, onFilterClick }) {
-  const filterData = [
-    {
-      filter: 'All',
-      id: 1,
-    },
-    {
-      filter: 'Active',
-      id: 2,
-    },
-    {
-      filter: 'Completed',
-      id: 3,
-    },
-  ]
-  const arr = filterData.map(({ filter, id }) => {
+  const filterData = ['All', 'Active', 'Completed']
+  const arr = filterData.map((filter) => {
     return (
-      <li key={id}>
+      <li key={filter}>
         <label className={currentFilter === filter ? 'selected' : null}>
           <input type="radio" name="filter" value={filter} onClick={() => onFilterClick(filter)} />
           {filter}
