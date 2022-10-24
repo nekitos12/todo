@@ -19,8 +19,8 @@ export default class TodoApp extends Component {
     this.setState({
       todoData: [
         this.createTodoItem('Drink Coffee', 20),
-        // this.createTodoItem('Drink Latte', 25),
-        // this.createTodoItem('Drink Milk', 30),
+        this.createTodoItem('Learn react', 25),
+        this.createTodoItem('Make a dinner', 30),
       ],
       filter: 'All',
     })
