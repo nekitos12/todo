@@ -4,7 +4,7 @@ import './task.css'
 
 export default class Task extends React.Component {
   componentDidMount() {
-    this.props.setTime(this.props.id, 0.5)
+    this.props.setTime(this.props.id, 1)
     this.interval = setInterval(this.setTime, 1000)
   }
 
