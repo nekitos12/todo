@@ -31,7 +31,7 @@ export default class TaskList extends Component {
   }
 
   render() {
-    const { todos, onDeleted, onToggleDone, onToggleEdit, onPlayClick, onPauseClick } = this.props
+    const { todos, onDeleted, onToggleDone, onToggleEdit, onPlayClick, onPauseClick, setTime } = this.props
 
     const elements = todos.map((todo) => {
       const { isDone, isEditing } = todo
@@ -49,6 +49,7 @@ export default class TaskList extends Component {
             onToggleEdit={() => onToggleEdit(todo.id)}
             onPlayClick={onPlayClick}
             onPauseClick={onPauseClick}
+            setTime={setTime}
           />
           {isEditing ? (
             <input

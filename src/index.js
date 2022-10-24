@@ -8,7 +8,7 @@ import TaskList from './components/task-list'
 import Footer from './components/footer'
 
 export default class TodoApp extends Component {
-  maxId = 100
+  maxId = 1
 
   state = {
     filter: '',
@@ -19,8 +19,8 @@ export default class TodoApp extends Component {
     this.setState({
       todoData: [
         this.createTodoItem('Drink Coffee', 20),
-        this.createTodoItem('Learn React', 25),
-        this.createTodoItem('Have a dinner', 30),
+        // this.createTodoItem('Drink Latte', 25),
+        // this.createTodoItem('Drink Milk', 30),
       ],
       filter: 'All',
     })
@@ -141,6 +141,19 @@ export default class TodoApp extends Component {
     })
   }
 
+  setTime = (id, count = 1) => {
+    this.setState(({ todoData }) => {
+      const newTodos = JSON.parse(JSON.stringify(todoData))
+      return {
+        todoData: newTodos.map((todo) =>
+          todo.id === id
+            ? { ...todo, timetoComplete: todo.timetoComplete > 0 && todo.timetoComplete - count }
+            : { ...todo }
+        ),
+      }
+    })
+  }
+
   createTodoItem(label, time) {
     return {
       label,
@@ -155,7 +168,6 @@ export default class TodoApp extends Component {
 
   render() {
     const todoCount = this.state.todoData.filter((todo) => !todo.isDone).length
-    // setTimeout(() => this.upDate(), 2000)
     const filterData = this.filteredTodo()
     return (
       <section className="todoapp">
@@ -172,6 +184,7 @@ export default class TodoApp extends Component {
             changeTaskDescr={this.changeTaskDescr}
             onPlayClick={this.onPlayClick}
             onPauseClick={this.onPauseClick}
+            setTime={this.setTime}
           />
           <Footer
             onFilterClick={this.onFilterClick}

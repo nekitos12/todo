@@ -3,19 +3,16 @@ import PropTypes from 'prop-types'
 import './task.css'
 
 export default class Task extends React.Component {
-  state = {}
-
   componentDidMount() {
+    this.props.setTime(this.props.id, 0.5)
     this.interval = setInterval(this.setTime, 1000)
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.isPause !== this.props.isPause) {
-      if (this.props.isPause) {
-        clearInterval(this.interval)
-      } else {
-        this.interval = setInterval(this.setTime, 1000)
-      }
+  componentDidUpdate() {
+    this.interval = this.interval || setInterval(this.setTime, 1000)
+    if (this.props.isPause || this.props.timetoComplete === 0) {
+      clearInterval(this.interval)
+      delete this.interval
     }
   }
 
@@ -24,24 +21,28 @@ export default class Task extends React.Component {
   }
 
   setTime = () => {
-    this.setState(({ time }) => {
-      return {
-        time: time ? time - 1 : this.props.timetoComplete,
-      }
-    })
+    this.props.setTime(this.props.id)
   }
 
-  // eslint-disable-next-line class-methods-use-this
   revertTimetoString = (time) => {
-    // eslint-disable-next-line no-restricted-globals
     return !isNaN(time) ? `${Math.floor(time / 60)}:${time - Math.floor(time / 60) * 60}` : ''
   }
 
   render() {
-    const { id, label, currentBornTime, isDone, onToggleDone, onDeleted, onToggleEdit, onPlayClick, onPauseClick } =
-      this.props
+    const {
+      id,
+      label,
+      currentBornTime,
+      timetoComplete,
+      isDone,
+      onToggleDone,
+      onDeleted,
+      onToggleEdit,
+      onPlayClick,
+      onPauseClick,
+    } = this.props
 
-    const timeToDone = this.revertTimetoString(this.state.time)
+    const timeToDone = this.revertTimetoString(timetoComplete)
     return (
       <div className="view">
         <input className="toggle" onClick={onToggleDone} type="checkbox" defaultChecked={isDone} />
