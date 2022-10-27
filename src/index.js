@@ -1,116 +1,101 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { formatDistanceToNow } from 'date-fns'
+import nextId from 'react-id-generator'
 
 import './style.css'
 import NewTaskForm from './components/new-task-form'
 import TaskList from './components/task-list'
 import Footer from './components/footer'
 
-export default class TodoApp extends Component {
-  maxId = 1
-
-  state = {
-    filter: '',
-    todoData: [],
+function TodoApp() {
+  const [filter, setFilter] = useState('All')
+  function createTodoItem(label, time) {
+    return {
+      label,
+      isDone: false,
+      isEditing: false,
+      id: nextId(),
+      timetoComplete: time,
+      createdAt: Date.now(),
+      isPause: false,
+    }
   }
 
-  componentDidMount() {
-    this.setState({
-      todoData: [
-        this.createTodoItem('Drink Coffee', 20),
-        this.createTodoItem('Learn react', 25),
-        this.createTodoItem('Make a dinner', 30),
-      ],
-      filter: 'All',
+  const [todoData, setTodoData] = useState(() => [
+    createTodoItem('Drink Coffee', 20),
+    createTodoItem('Learn react', 25),
+    createTodoItem('Make a dinner', 30),
+  ])
+
+  const copyArray = (arr) => JSON.parse(JSON.stringify(arr))
+
+  const upDate = () => {
+    setTodoData((todos) => {
+      return copyArray(todos).map((todo) => ({
+        ...todo,
+        currentBornTime: formatDistanceToNow(todo.createdAt, { includeSeconds: true }),
+      }))
     })
-    this.interval = setInterval(() => this.upDate(), 2000)
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval)
-  }
-
-  upDate = () => {
-    this.setState(({ todoData }) => {
-      const newTodos = JSON.parse(JSON.stringify(todoData))
-      return {
-        todoData: newTodos.map((todo) => ({
-          ...todo,
-          currentBornTime: formatDistanceToNow(todo.createdAt, { includeSeconds: true }),
-        })),
+  function useInterval(callback, delay) {
+    useEffect(() => {
+      function tick() {
+        callback()
       }
-    })
-  }
-
-  addItem = (label, time) => {
-    const newItem = this.createTodoItem(label, time)
-    this.setState(({ todoData }) => {
-      return {
-        todoData: [newItem, ...todoData],
+      if (delay !== null) {
+        // eslint-disable-next-line no-shadow
+        const id = setInterval(tick, delay)
+        return () => clearInterval(id)
       }
-    })
+    }, [delay])
   }
 
-  deleteItem = (id) => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: todoData.filter((el) => el.id !== id),
-      }
-    })
+  useInterval(() => {
+    upDate()
+  }, 2000)
+
+  const addItem = (label, time) => {
+    const newItem = createTodoItem(label, time)
+    setTodoData((todos) => [newItem, ...todos])
   }
 
-  toggleProperty = (id, propName, arr = this.state.todoData) => {
-    const newArray = JSON.parse(JSON.stringify(arr))
-    return newArray.map((todo) => {
+  const deleteItem = (id) => {
+    setTodoData((todos) => todos.filter((el) => el.id !== id))
+  }
+
+  const toggleProperty = (id, propName, arr = todoData) => {
+    return copyArray(arr).map((todo) => {
       return todo.id === id || todo.isEditing ? { ...todo, [propName]: !todo[propName] } : { ...todo }
     })
   }
 
-  onToggleDone = (id) => {
-    this.setState(() => {
-      return {
-        todoData: this.toggleProperty(id, 'isDone'),
-      }
+  const onToggleDone = (id) => {
+    setTodoData((todos) => toggleProperty(id, 'isDone', todos))
+  }
+
+  const onToggleEdit = (id) => {
+    setTodoData((todos) => toggleProperty(id, 'isEditing', todos))
+  }
+
+  const changeTaskDescr = (newLabel, id) => {
+    setTodoData((todos) => {
+      return copyArray(todos).map((todo) => (todo.id === id ? { ...todo, label: newLabel } : { ...todo }))
     })
   }
 
-  onToggleEdit = (id) => {
-    this.setState(() => {
-      return {
-        todoData: this.toggleProperty(id, 'isEditing'),
-      }
+  const onFilterClick = (newFilter) => {
+    setFilter(newFilter)
+  }
+
+  const clearCompleted = () => {
+    setTodoData((todos) => {
+      return copyArray(todos).filter((todo) => !todo.isDone)
     })
   }
 
-  changeTaskDescr = (newLabel, id) => {
-    this.setState(({ todoData }) => {
-      const newTodos = JSON.parse(JSON.stringify(todoData))
-      return {
-        todoData: newTodos.map((todo) => (todo.id === id ? { ...todo, label: newLabel } : { ...todo })),
-      }
-    })
-  }
-
-  onFilterClick = (filter) => {
-    this.setState(() => {
-      return {
-        filter,
-      }
-    })
-  }
-
-  clearCompleted = () => {
-    this.setState(({ todoData }) => {
-      const newTodos = JSON.parse(JSON.stringify(todoData))
-      return {
-        todoData: newTodos.filter((todo) => !todo.isDone),
-      }
-    })
-  }
-
-  filteredTodo = () => {
-    const { filter, todoData } = this.state
+  const filteredTodo = () => {
     switch (filter) {
       case 'All':
         return todoData
@@ -123,79 +108,57 @@ export default class TodoApp extends Component {
     }
   }
 
-  onPlayClick = (id) => {
-    this.setState(({ todoData }) => {
-      const newTodos = JSON.parse(JSON.stringify(todoData))
-      return {
-        todoData: newTodos.map((todo) => (todo.id === id ? { ...todo, isPause: false } : { ...todo })),
-      }
+  const onPlayClick = (id) => {
+    setTodoData((todos) => {
+      return copyArray(todos).map((todo) => (todo.id === id ? { ...todo, isPause: false } : { ...todo }))
     })
   }
 
-  onPauseClick = (id) => {
-    this.setState(({ todoData }) => {
-      const newTodos = JSON.parse(JSON.stringify(todoData))
-      return {
-        todoData: newTodos.map((todo) => (todo.id === id ? { ...todo, isPause: true } : { ...todo })),
-      }
+  const onPauseClick = (id) => {
+    setTodoData((todos) => {
+      return copyArray(todos).map((todo) => (todo.id === id ? { ...todo, isPause: true } : { ...todo }))
     })
   }
 
-  setTime = (id, count = 1) => {
-    this.setState(({ todoData }) => {
-      const newTodos = JSON.parse(JSON.stringify(todoData))
-      return {
-        todoData: newTodos.map((todo) =>
-          todo.id === id
-            ? { ...todo, timetoComplete: todo.timetoComplete > 0 && todo.timetoComplete - count }
-            : { ...todo }
-        ),
-      }
+  const setTime = (id) => {
+    setTodoData((todos) => {
+      return copyArray(todos).map((todo) =>
+        todo.id === id
+          ? { ...todo, timetoComplete: todo.timetoComplete > 0 ? todo.timetoComplete - 1 : 0 }
+          : { ...todo }
+      )
     })
   }
 
-  createTodoItem(label, time) {
-    return {
-      label,
-      isDone: false,
-      isEditing: false,
-      id: this.maxId++,
-      timetoComplete: time,
-      createdAt: Date.now(),
-      isPause: false,
-    }
-  }
-
-  render() {
-    const todoCount = this.state.todoData.filter((todo) => !todo.isDone).length
-    const filterData = this.filteredTodo()
-    return (
-      <section className="todoapp">
-        <header className="header">
-          <h1>todos</h1>
-          <NewTaskForm onFormSubmit={this.addItem} />
-        </header>
-        <section className="main">
-          <TaskList
-            todos={filterData}
-            onDeleted={this.deleteItem}
-            onToggleEdit={this.onToggleEdit}
-            onToggleDone={this.onToggleDone}
-            changeTaskDescr={this.changeTaskDescr}
-            onPlayClick={this.onPlayClick}
-            onPauseClick={this.onPauseClick}
-            setTime={this.setTime}
-          />
-          <Footer
-            onFilterClick={this.onFilterClick}
-            currentFilter={this.state.filter}
-            todoCount={todoCount}
-            clearCompleted={this.clearCompleted}
-          />
-        </section>
+  const todoCount = todoData.filter((todo) => !todo.isDone).length
+  const filterData = filteredTodo() || []
+  return (
+    <section className="todoapp">
+      <header className="header">
+        <h1>todos</h1>
+        <NewTaskForm addItem={addItem} />
+      </header>
+      <section className="main">
+        <TaskList
+          todos={filterData}
+          onDeleted={deleteItem}
+          onToggleEdit={onToggleEdit}
+          onToggleDone={onToggleDone}
+          changeTaskDescr={changeTaskDescr}
+          onPlayClick={onPlayClick}
+          onPauseClick={onPauseClick}
+          setTime={setTime}
+          useInterval={useInterval}
+        />
+        <Footer
+          onFilterClick={onFilterClick}
+          currentFilter={filter}
+          todoCount={todoCount}
+          clearCompleted={clearCompleted}
+        />
       </section>
-    )
-  }
+    </section>
+  )
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'))

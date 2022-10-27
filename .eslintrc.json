@@ -37,6 +37,8 @@
         "indent": "off",
         "react/react-in-jsx-scope": "off",
         "react/prop-types": 0,
+        "react/jsx-no-bind": "off",
+        "consistent-return": "off",
         "react/destructuring-assignment": [0, "always"],
         "react/button-has-type": "off",
         "no-plusplus": "off",

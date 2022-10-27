@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import './task-list.css'
@@ -6,65 +6,62 @@ import Task from '../task'
 
 const classNames = require('classnames')
 
-export default class TaskList extends Component {
-  state = {
-    currentTask: '',
+function TaskList({
+  todos,
+  onDeleted,
+  useInterval,
+  onToggleDone,
+  onToggleEdit,
+  onPlayClick,
+  onPauseClick,
+  changeTaskDescr,
+  setTime,
+}) {
+  const [currentTask, setCurrentTask] = useState('')
+
+  const onTaskEdit = (todo) => (e) => {
+    setCurrentTask(e.target.value)
+    changeTaskDescr(e.target.value, todo.id)
   }
 
-  onTaskEdit = (todo) => (e) => {
-    this.setState(() => {
-      return {
-        currentTask: e.target.value,
-      }
-    })
-    this.props.changeTaskDescr(e.target.value, todo.id)
-  }
-
-  onSubmitChange = (todo) => (e) => {
+  const onSubmitChange = (todo) => (e) => {
     e.preventDefault()
-    this.setState(() => {
-      return {
-        currentTask: '',
-      }
-    })
-    this.props.onToggleEdit(todo.id)
+    setCurrentTask('')
+    onToggleEdit(todo.id)
   }
 
-  render() {
-    const { todos, onDeleted, onToggleDone, onToggleEdit, onPlayClick, onPauseClick, setTime } = this.props
+  const elements = todos.map((todo) => {
+    const { isDone, isEditing } = todo
 
-    const elements = todos.map((todo) => {
-      const { isDone, isEditing } = todo
-
-      const className = classNames({
-        completed: isDone,
-        editing: isEditing,
-      })
-      return (
-        <li key={todo.id} className={className}>
-          <Task
-            {...todo}
-            onDeleted={() => onDeleted(todo.id)}
-            onToggleDone={() => onToggleDone(todo.id)}
-            onToggleEdit={() => onToggleEdit(todo.id)}
-            onPlayClick={onPlayClick}
-            onPauseClick={onPauseClick}
-            setTime={setTime}
+    const className = classNames({
+      completed: isDone,
+      editing: isEditing,
+    })
+    return (
+      <li key={todo.id} className={className}>
+        <Task
+          {...todo}
+          onDeleted={() => onDeleted(todo.id)}
+          onToggleDone={() => onToggleDone(todo.id)}
+          onToggleEdit={() => onToggleEdit(todo.id)}
+          onPlayClick={onPlayClick}
+          onPauseClick={onPauseClick}
+          setTime={setTime}
+          useInterval={useInterval}
+        />
+        {isEditing ? (
+          <input
+            type="text"
+            className="edit"
+            value={currentTask || todo.label}
+            onChange={onTaskEdit(todo)}
+            onBlur={onSubmitChange(todo)}
           />
-          {isEditing ? (
-            <input
-              type="text"
-              className="edit"
-              value={this.state.currentTask || todo.label}
-              onChange={this.onTaskEdit(todo)}
-              onBlur={this.onSubmitChange(todo)}
-            />
-          ) : null}
-        </li>
-      )
-    })
-    return <ul className="todo-list">{elements}</ul>
-  }
+        ) : null}
+      </li>
+    )
+  })
+  return <ul className="todo-list">{elements}</ul>
 }
 TaskList.defaultProps = {
   todos: [],
@@ -79,7 +76,7 @@ TaskList.propTypes = {
       label: PropTypes.string,
       isDone: PropTypes.bool,
       isEditing: PropTypes.bool,
-      id: PropTypes.number,
+      id: PropTypes.string,
       currentBornTime: PropTypes.string,
       createdAt: PropTypes.number,
       timetoComplete: PropTypes.number,
@@ -89,3 +86,5 @@ TaskList.propTypes = {
   onPlayClick: PropTypes.func.isRequired,
   onPauseClick: PropTypes.func.isRequired,
 }
+
+export default TaskList
